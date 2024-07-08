@@ -54,11 +54,7 @@ public final class CrawInternalTask extends RecursiveTask<Void> {
         }
         PageParser.Result result = parserFactory.get(url).parse();
         for (Map.Entry<String, Integer> e : result.getWordCounts().entrySet()) {
-            if (counts.containsKey(e.getKey())) {
-                counts.put(e.getKey(), e.getValue() + counts.get(e.getKey()));
-            } else {
-                counts.put(e.getKey(), e.getValue());
-            }
+            counts.compute(e.getKey(), (key, oldValue) -> oldValue == null ? e.getValue() : oldValue + e.getValue());
         }
         List<CrawInternalTask> crawInternalTasks = result.getLinks().stream()
                 .map(link -> new CrawInternalTask(
